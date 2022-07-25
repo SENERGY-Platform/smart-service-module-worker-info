@@ -24,7 +24,9 @@ import (
 )
 
 type Config struct {
-	WorkerParamPrefix string `json:"worker_param_prefix"`
+	WorkerParamPrefix                string `json:"worker_param_prefix"`
+	EnableDeleteInfo                 bool   `json:"enable_delete_info"`
+	EnableAdditionalModuleDataFields bool   `json:"enable_additional_module_data_fields"`
 }
 
 func New(config Config, libConfig configuration.Config) *Info {
@@ -38,12 +40,9 @@ type Info struct {
 
 func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, outputs map[string]interface{}, err error) {
 	return []model.Module{{
-			Id:               task.ProcessInstanceId + "." + task.Id,
-			ProcesInstanceId: task.ProcessInstanceId,
-			SmartServiceModuleInit: model.SmartServiceModuleInit{
-				ModuleType: this.libConfig.CamundaWorkerTopic,
-				ModuleData: this.getModuleData(task),
-			},
+			Id:                     task.ProcessInstanceId + "." + task.Id,
+			ProcesInstanceId:       task.ProcessInstanceId,
+			SmartServiceModuleInit: this.getSmartServiceModuleInit(task),
 		}},
 		map[string]interface{}{},
 		err
@@ -51,7 +50,69 @@ func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, ou
 
 func (this *Info) Undo(modules []model.Module, reason error) {}
 
+func (this *Info) getSmartServiceModuleInit(task model.CamundaExternalTask) (result model.SmartServiceModuleInit) {
+	moduleData := this.getModuleData(task)
+	if this.config.EnableAdditionalModuleDataFields {
+		for key, value := range this.getModuleDataAdditionalFields(task) {
+			moduleData[key] = value
+		}
+	}
+	return model.SmartServiceModuleInit{
+		DeleteInfo: this.getDeleteInfo(task),
+		ModuleType: this.getModuleType(task),
+		ModuleData: moduleData,
+	}
+}
+
+func (this *Info) getModuleType(task model.CamundaExternalTask) string {
+	variable, ok := task.Variables[this.config.WorkerParamPrefix+"module_type"]
+	if !ok {
+		return this.libConfig.CamundaWorkerTopic
+	}
+	result, ok := variable.Value.(string)
+	if !ok {
+		return this.libConfig.CamundaWorkerTopic
+	}
+	return result
+}
+
 func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[string]interface{}) {
+	variable, ok := task.Variables[this.config.WorkerParamPrefix+"module_data"]
+	if !ok {
+		return map[string]interface{}{}
+	}
+	temp, ok := variable.Value.(string)
+	if !ok {
+		return map[string]interface{}{}
+	}
+	err := json.Unmarshal([]byte(temp), &result)
+	if err != nil {
+		return map[string]interface{}{}
+	}
+	return result
+}
+
+func (this *Info) getDeleteInfo(task model.CamundaExternalTask) (result *model.ModuleDeleteInfo) {
+	if !this.config.EnableDeleteInfo {
+		return nil
+	}
+	variable, ok := task.Variables[this.config.WorkerParamPrefix+"delete_info"]
+	if !ok {
+		return nil
+	}
+	temp, ok := variable.Value.(string)
+	if !ok {
+		return nil
+	}
+	err := json.Unmarshal([]byte(temp), result)
+	if err != nil {
+		return nil
+	}
+	result.UserId = ""
+	return result
+}
+
+func (this *Info) getModuleDataAdditionalFields(task model.CamundaExternalTask) (result map[string]interface{}) {
 	result = map[string]interface{}{}
 	for key, value := range task.Variables {
 		if strings.HasPrefix(key, this.config.WorkerParamPrefix) {
@@ -60,15 +121,16 @@ func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[stri
 			if !ok {
 				break
 			}
-			var temp interface{}
-			err := json.Unmarshal([]byte(str), &temp)
-			if err != nil {
-				result[key] = str
-			} else {
-				result[key] = temp
+			if key != "module_data" && key != "module_type" && key != "delete_info" {
+				var temp interface{}
+				err := json.Unmarshal([]byte(str), &temp)
+				if err != nil {
+					result[key] = str
+				} else {
+					result[key] = temp
+				}
 			}
 		}
-
 	}
 	return result
 }

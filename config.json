@@ -9,6 +9,8 @@
     "camunda_fetch_max_tasks": 100,
 
     "worker_param_prefix": "info.",
+    "enable_delete_info": true,
+    "enable_additional_module_data_fields": true,
 
     "auth_endpoint": "",
     "auth_client_id": "",

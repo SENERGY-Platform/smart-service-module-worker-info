@@ -1,10 +1,31 @@
 ## Camunda-Input-Variables
 
-### Module-Data
+### Module-Type
+- Desc: sets Module.ModuleType; default is `config.CamundaWorkerTopic`
+- Variable-Name-Template: `{{config.WorkerParamPrefix}}.module_type`
+- Value-Type: string
+- Example-Variable-Name: `info.module_type`
+- Example-Variable-Value: `widget`
 
-- Desc: sets fields for Module.ModuleData. The "config.WorkerParamPrefix" will be trimmed before used as Module.ModuleData field name. Values will be interpreted as JSON. If the value is not a valid JSON string, it will be used as plain string.
+### Module-Data
+- Desc: sets Module.ModuleData; default is `{}`
+- Variable-Name-Template: `{{config.WorkerParamPrefix}}.module_data`
+- Value-Type: `json.Marshal(map[string]interface{})`
+- Example-Variable-Name: `info.module_data`
+- Example-Variable-Value: `{"foo": 42}`
+- Example-ModuleData: `{"foo": 42}`
+
+### Additional Module-Data
+- Desc: Optional; enabled/disabled by `config.enable_additional_module_data_fields`; sets fields for Module.ModuleData. The "config.WorkerParamPrefix" will be trimmed before used as Module.ModuleData field name. Values will be interpreted as JSON. If the value is not a valid JSON string, it will be used as plain string.
 - Variable-Name-Template: `{{config.WorkerParamPrefix}}.{{fieldName}}`
 - Value-Type: string (will be unmarshalled as JSON if possible)
-- Example-Variable-Name: `widget.button`
+- Example-Variable-Name: `info.button`
 - Example-Variable-Value: `{"foo": 42}`
 - Example-ModuleData: `{"button":{"foo": 42}}`
+
+### Module-Delete
+- Desc: Optional; sets Module.DeleteInfo; default is `nil`; enabled/disabled by `config.enable_delete_info`; ModuleDeleteInfo.UserId will be set to `""`
+- Variable-Name-Template: `{{config.WorkerParamPrefix}}.delete_info`
+- Value-Type: `json.Marshal(model.ModuleDeleteInfo)`
+- Example-Variable-Name: `info.delete_info`
+- Example-Variable-Value: `{"url": "http://foo.bar"}`
