@@ -85,14 +85,24 @@ func (this *Info) getModuleType(task model.CamundaExternalTask) string {
 func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[string]interface{}) {
 	variable, ok := task.Variables[this.config.WorkerParamPrefix+"module_data"]
 	if !ok {
+		if this.config.Debug {
+			log.Println("no module_data found")
+		}
 		return map[string]interface{}{}
 	}
 	temp, ok := variable.Value.(string)
 	if !ok {
+		if this.config.Debug {
+			log.Println("no module_data found")
+		}
+		if this.config.Debug {
+			log.Println("module_data is not string")
+		}
 		return map[string]interface{}{}
 	}
 	err := json.Unmarshal([]byte(temp), &result)
 	if err != nil {
+		log.Println("ERROR: module_data is not valid json", temp, err)
 		return map[string]interface{}{}
 	}
 	return result
