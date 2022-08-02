@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/configuration"
 	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/model"
+	"log"
 	"strings"
 )
 
@@ -27,6 +28,7 @@ type Config struct {
 	WorkerParamPrefix                string `json:"worker_param_prefix"`
 	EnableDeleteInfo                 bool   `json:"enable_delete_info"`
 	EnableAdditionalModuleDataFields bool   `json:"enable_additional_module_data_fields"`
+	Debug                            bool   `json:"debug"`
 }
 
 func New(config Config, libConfig configuration.Config) *Info {
@@ -51,6 +53,10 @@ func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, ou
 func (this *Info) Undo(modules []model.Module, reason error) {}
 
 func (this *Info) getSmartServiceModuleInit(task model.CamundaExternalTask) (result model.SmartServiceModuleInit) {
+	if this.config.Debug {
+		temp, _ := json.Marshal(task.Variables)
+		log.Println("received task variables", string(temp))
+	}
 	moduleData := this.getModuleData(task)
 	if this.config.EnableAdditionalModuleDataFields {
 		for key, value := range this.getModuleDataAdditionalFields(task) {
