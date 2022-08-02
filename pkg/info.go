@@ -18,6 +18,8 @@ package pkg
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/configuration"
 	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/model"
 	"log"
@@ -41,10 +43,11 @@ type Info struct {
 }
 
 func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, outputs map[string]interface{}, err error) {
+	info, err := this.getSmartServiceModuleInit(task)
 	return []model.Module{{
 			Id:                     task.ProcessInstanceId + "." + task.Id,
 			ProcesInstanceId:       task.ProcessInstanceId,
-			SmartServiceModuleInit: this.getSmartServiceModuleInit(task),
+			SmartServiceModuleInit: info,
 		}},
 		map[string]interface{}{},
 		err
@@ -52,12 +55,12 @@ func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, ou
 
 func (this *Info) Undo(modules []model.Module, reason error) {}
 
-func (this *Info) getSmartServiceModuleInit(task model.CamundaExternalTask) (result model.SmartServiceModuleInit) {
+func (this *Info) getSmartServiceModuleInit(task model.CamundaExternalTask) (result model.SmartServiceModuleInit, err error) {
 	if this.config.Debug {
 		temp, _ := json.Marshal(task.Variables)
 		log.Println("received task variables", string(temp))
 	}
-	moduleData := this.getModuleData(task)
+	moduleData, err := this.getModuleData(task)
 	if this.config.EnableAdditionalModuleDataFields {
 		for key, value := range this.getModuleDataAdditionalFields(task) {
 			moduleData[key] = value
@@ -67,7 +70,7 @@ func (this *Info) getSmartServiceModuleInit(task model.CamundaExternalTask) (res
 		DeleteInfo: this.getDeleteInfo(task),
 		ModuleType: this.getModuleType(task),
 		ModuleData: moduleData,
-	}
+	}, err
 }
 
 func (this *Info) getModuleType(task model.CamundaExternalTask) string {
@@ -82,30 +85,27 @@ func (this *Info) getModuleType(task model.CamundaExternalTask) string {
 	return result
 }
 
-func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[string]interface{}) {
+func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[string]interface{}, err error) {
 	variable, ok := task.Variables[this.config.WorkerParamPrefix+"module_data"]
 	if !ok {
 		if this.config.Debug {
 			log.Println("no module_data found")
 		}
-		return map[string]interface{}{}
+		return map[string]interface{}{}, nil
 	}
 	temp, ok := variable.Value.(string)
 	if !ok {
 		if this.config.Debug {
-			log.Println("no module_data found")
-		}
-		if this.config.Debug {
 			log.Println("module_data is not string")
 		}
-		return map[string]interface{}{}
+		return map[string]interface{}{}, errors.New("module_data is not string")
 	}
-	err := json.Unmarshal([]byte(temp), &result)
+	err = json.Unmarshal([]byte(temp), &result)
 	if err != nil {
 		log.Println("ERROR: module_data is not valid json", temp, err)
-		return map[string]interface{}{}
+		return map[string]interface{}{}, fmt.Errorf(" module_data is not valid json: %w, (%v)", err, temp)
 	}
-	return result
+	return result, nil
 }
 
 func (this *Info) getDeleteInfo(task model.CamundaExternalTask) (result *model.ModuleDeleteInfo) {
