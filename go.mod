@@ -2,7 +2,7 @@ module github.com/SENERGY-Platform/smart-service-module-worker-info
 
 go 1.18
 
-require github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20220706062144-a4704582ea25
+require github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20220805102514-10fe40062139
 
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
