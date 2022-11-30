@@ -31,6 +31,7 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config Config, libConfig con
 		return New(
 			config,
 			libConfig,
+			smartServiceRepo,
 		), nil
 	}
 	return lib.Start(ctx, wg, libConfig, handlerFactory)

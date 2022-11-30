@@ -28,22 +28,46 @@ import (
 
 type Config struct {
 	WorkerParamPrefix                string `json:"worker_param_prefix"`
-	EnableDeleteInfo                 bool   `json:"enable_delete_info"`
 	EnableAdditionalModuleDataFields bool   `json:"enable_additional_module_data_fields"`
 	Debug                            bool   `json:"debug"`
 }
 
-func New(config Config, libConfig configuration.Config) *Info {
-	return &Info{config: config, libConfig: libConfig}
+func New(config Config, libConfig configuration.Config, repo SmartServiceRepo) *Info {
+	return &Info{config: config, libConfig: libConfig, smartServiceRepo: repo}
 }
 
 type Info struct {
-	config    Config
-	libConfig configuration.Config
+	config           Config
+	libConfig        configuration.Config
+	smartServiceRepo SmartServiceRepo
+}
+
+type SmartServiceRepo interface {
+	GetInstanceUser(instanceId string) (userId string, err error)
+	UseModuleDeleteInfo(info model.ModuleDeleteInfo) error
+	ListExistingModules(processInstanceId string, query model.ModulQuery) (result []model.SmartServiceModule, err error)
 }
 
 func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, outputs map[string]interface{}, err error) {
+	key := this.getModuleKey(task)
+	if key == nil {
+		return this.createModule(task, []string{})
+	} else {
+		existingModule, exists, err := this.getExistingModule(task.ProcessInstanceId, *key)
+		if err != nil {
+			return nil, nil, err
+		}
+		if !exists {
+			return this.createModule(task, []string{*key})
+		} else {
+			return this.updateModule(task, existingModule, []string{*key})
+		}
+	}
+}
+
+func (this *Info) createModule(task model.CamundaExternalTask, keys []string) ([]model.Module, map[string]interface{}, error) {
 	info, err := this.getSmartServiceModuleInit(task)
+	info.Keys = keys
 	return []model.Module{{
 			Id:                     task.ProcessInstanceId + "." + task.Id,
 			ProcesInstanceId:       task.ProcessInstanceId,
@@ -51,6 +75,18 @@ func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, ou
 		}},
 		map[string]interface{}{},
 		err
+}
+
+func (this *Info) updateModule(task model.CamundaExternalTask, existingModule model.Module, keys []string) ([]model.Module, map[string]interface{}, error) {
+	info, err := this.getSmartServiceModuleInit(task)
+	if err != nil {
+		return nil, nil, err
+	}
+	info.Keys = keys
+	existingModule.SmartServiceModuleInit = info
+	return []model.Module{existingModule},
+		map[string]interface{}{},
+		nil
 }
 
 func (this *Info) Undo(modules []model.Module, reason error) {}
@@ -67,7 +103,6 @@ func (this *Info) getSmartServiceModuleInit(task model.CamundaExternalTask) (res
 		}
 	}
 	return model.SmartServiceModuleInit{
-		DeleteInfo: this.getDeleteInfo(task),
 		ModuleType: this.getModuleType(task),
 		ModuleData: moduleData,
 	}, err
@@ -108,26 +143,6 @@ func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[stri
 	return result, nil
 }
 
-func (this *Info) getDeleteInfo(task model.CamundaExternalTask) (result *model.ModuleDeleteInfo) {
-	if !this.config.EnableDeleteInfo {
-		return nil
-	}
-	variable, ok := task.Variables[this.config.WorkerParamPrefix+"delete_info"]
-	if !ok {
-		return nil
-	}
-	temp, ok := variable.Value.(string)
-	if !ok {
-		return nil
-	}
-	err := json.Unmarshal([]byte(temp), result)
-	if err != nil {
-		return nil
-	}
-	result.UserId = ""
-	return result
-}
-
 func (this *Info) getModuleDataAdditionalFields(task model.CamundaExternalTask) (result map[string]interface{}) {
 	result = map[string]interface{}{}
 	for key, value := range task.Variables {
@@ -149,4 +164,40 @@ func (this *Info) getModuleDataAdditionalFields(task model.CamundaExternalTask) 
 		}
 	}
 	return result
+}
+
+// if no key is set: return nil
+func (this *Info) getModuleKey(task model.CamundaExternalTask) (key *string) {
+	variable, ok := task.Variables[this.config.WorkerParamPrefix+"key"]
+	if !ok {
+		return nil
+	}
+	result, ok := variable.Value.(string)
+	if ok {
+		return &result
+	}
+	return nil
+}
+
+func (this *Info) getExistingModule(processInstanceId string, key string) (module model.Module, exists bool, err error) {
+	existingModules, err := this.smartServiceRepo.ListExistingModules(processInstanceId, model.ModulQuery{
+		KeyFilter: &key,
+	})
+	if err != nil {
+		log.Println("ERROR:", err)
+		return module, false, err
+	}
+	if this.config.Debug {
+		log.Printf("DEBUG: existing module request: %v, %v, \n %#v", processInstanceId, key, existingModules)
+	}
+	if len(existingModules) == 0 {
+		return module, false, nil
+	}
+	if len(existingModules) > 1 {
+		log.Printf("WARNING: more than one existing module found: %v, %v, \n %#v", processInstanceId, key, existingModules)
+	}
+	module.SmartServiceModuleInit = existingModules[0].SmartServiceModuleInit
+	module.ProcesInstanceId = processInstanceId
+	module.Id = existingModules[0].Id
+	return module, true, nil
 }
