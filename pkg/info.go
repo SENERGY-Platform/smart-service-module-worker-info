@@ -23,6 +23,7 @@ import (
 	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/configuration"
 	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/model"
 	"log"
+	"sort"
 	"strings"
 )
 
@@ -120,25 +121,45 @@ func (this *Info) getModuleType(task model.CamundaExternalTask) string {
 	return result
 }
 
+type KeyValue struct {
+	Key   string
+	Value string
+}
+
 func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[string]interface{}, err error) {
-	variable, ok := task.Variables[this.config.WorkerParamPrefix+"module_data"]
-	if !ok {
+	parts := []KeyValue{}
+	for key, variable := range task.Variables {
+		if strings.HasPrefix(key, this.config.WorkerParamPrefix+"module_data") {
+			temp, ok := variable.Value.(string)
+			if !ok {
+				if this.config.Debug {
+					log.Println("module_data is not string")
+				}
+				return map[string]interface{}{}, errors.New("module_data is not string")
+			}
+			parts = append(parts, KeyValue{
+				Key:   key,
+				Value: temp,
+			})
+		}
+	}
+	if len(parts) == 0 {
 		if this.config.Debug {
 			log.Println("no module_data found")
 		}
 		return map[string]interface{}{}, nil
 	}
-	temp, ok := variable.Value.(string)
-	if !ok {
-		if this.config.Debug {
-			log.Println("module_data is not string")
-		}
-		return map[string]interface{}{}, errors.New("module_data is not string")
+	sort.Slice(parts, func(i, j int) bool {
+		return parts[i].Key < parts[j].Key
+	})
+	joined := ""
+	for _, part := range parts {
+		joined = joined + part.Value
 	}
-	err = json.Unmarshal([]byte(temp), &result)
+	err = json.Unmarshal([]byte(joined), &result)
 	if err != nil {
-		log.Println("ERROR: module_data is not valid json", temp, err)
-		return map[string]interface{}{}, fmt.Errorf(" module_data is not valid json: %w, (%v)", err, temp)
+		log.Println("ERROR: module_data is not valid json", joined, err)
+		return map[string]interface{}{}, fmt.Errorf(" module_data is not valid json: %w, (%v)", err, joined)
 	}
 	return result, nil
 }
@@ -146,13 +167,13 @@ func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[stri
 func (this *Info) getModuleDataAdditionalFields(task model.CamundaExternalTask) (result map[string]interface{}) {
 	result = map[string]interface{}{}
 	for key, value := range task.Variables {
-		if strings.HasPrefix(key, this.config.WorkerParamPrefix) {
+		if strings.HasPrefix(key, this.config.WorkerParamPrefix) && !strings.HasPrefix(key, this.config.WorkerParamPrefix+"module_data") {
 			key = strings.TrimPrefix(key, this.config.WorkerParamPrefix)
 			str, ok := value.Value.(string)
 			if !ok {
 				break
 			}
-			if key != "module_data" && key != "module_type" && key != "delete_info" {
+			if key != "module_data" && key != "module_type" && key != "delete_info" && key != "key" {
 				var temp interface{}
 				err := json.Unmarshal([]byte(str), &temp)
 				if err != nil {
@@ -173,7 +194,7 @@ func (this *Info) getModuleKey(task model.CamundaExternalTask) (key *string) {
 		return nil
 	}
 	result, ok := variable.Value.(string)
-	if ok {
+	if ok && result != "" {
 		return &result
 	}
 	return nil
