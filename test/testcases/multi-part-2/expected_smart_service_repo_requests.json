@@ -1,0 +1,7 @@
+[
+    {
+        "method":"PUT",
+        "endpoint":"/instances-by-process-id/process-instance-1/modules/process-instance-1.task1",
+        "message":"{\"delete_info\":null,\"module_type\":\"info\",\"module_data\":{\"a\":1,\"b\":2,\"c\":3,\"d\":4},\"keys\":[]}\n"
+    }
+]

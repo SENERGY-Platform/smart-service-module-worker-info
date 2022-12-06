@@ -50,6 +50,10 @@ type SmartServiceRepo interface {
 }
 
 func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, outputs map[string]interface{}, err error) {
+	if this.config.Debug {
+		temp, _ := json.Marshal(task.Variables)
+		fmt.Println("DEBUG:", string(temp))
+	}
 	key := this.getModuleKey(task)
 	if key == nil {
 		return this.createModule(task, []string{})
