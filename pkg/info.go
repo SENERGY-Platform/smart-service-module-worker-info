@@ -50,10 +50,6 @@ type SmartServiceRepo interface {
 }
 
 func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, outputs map[string]interface{}, err error) {
-	if this.config.Debug {
-		temp, _ := json.Marshal(task.Variables)
-		fmt.Println("DEBUG:", string(temp))
-	}
 	key := this.getModuleKey(task)
 	if key == nil {
 		return this.createModule(task, []string{})
@@ -162,8 +158,8 @@ func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[stri
 	}
 	err = json.Unmarshal([]byte(joined), &result)
 	if err != nil {
-		log.Println("ERROR: module_data is not valid json", joined, err)
-		return map[string]interface{}{}, fmt.Errorf(" module_data is not valid json: %w, (%v)", err, joined)
+		log.Println("ERROR: module_data is not valid json", err, "\n", joined)
+		return map[string]interface{}{}, fmt.Errorf("invalid json for module_data: %w, (%v)", err, joined)
 	}
 	return result, nil
 }
