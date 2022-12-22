@@ -1,5 +1,7 @@
 github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20221221115706-e33fe6961783 h1:ZlPP2sdXTsYjnUP0Ysc0Wr4qSeETB1d10Tc+sKRch6o=
 github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20221221115706-e33fe6961783/go.mod h1:HhYJIX0eFmLGDyZR40OL7A17bNLGjpa69d09py3vsKU=
+github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20221222120017-1cf17dd296a4 h1:DSY3x3uKmiaRFgt8bql0NbTJSlJOPalEVJV8h/MQlAg=
+github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20221222120017-1cf17dd296a4/go.mod h1:HhYJIX0eFmLGDyZR40OL7A17bNLGjpa69d09py3vsKU=
 github.com/cespare/xxhash/v2 v2.1.2 h1:YRXhKfTDauu4ajMg1TPgFO5jnlC2HCbmLXMcTG5cbYE=
 github.com/cespare/xxhash/v2 v2.1.2/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/coocood/freecache v1.2.1 h1:/v1CqMq45NFH9mp/Pt142reundeBM0dVUD3osQBeu/U=
