@@ -1,5 +1,6 @@
 {
     "smart_service_repository_url": "",
+    "device_repository_url": "",
     "camunda_url": "",
 
     "camunda_worker_id": "info",

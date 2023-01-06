@@ -1,6 +1,11 @@
 [
     {
         "method":"GET",
+        "endpoint":"/instances-by-process-id/process-instance-1/user-id",
+        "message":""
+    },
+    {
+        "method":"GET",
         "endpoint":"/instances-by-process-id/process-instance-1/variables-map",
         "message":""
     },
