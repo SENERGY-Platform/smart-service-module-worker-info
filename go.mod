@@ -3,7 +3,7 @@ module github.com/SENERGY-Platform/smart-service-module-worker-info
 go 1.19
 
 require (
-	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20230106114554-13f817031522
+	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20230109073423-61e3c437e8e6
 	github.com/julienschmidt/httprouter v1.3.0
 )
 
@@ -11,7 +11,7 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
-	github.com/SENERGY-Platform/device-repository v0.0.0-20230106111134-f025951c9d1a // indirect
+	github.com/SENERGY-Platform/device-repository v0.0.0-20230109071552-1ba9032e599d // indirect
 	github.com/SENERGY-Platform/models/go v0.0.0-20221223081229-be7eb5ebb37f // indirect
 	github.com/acobaugh/osrelease v0.0.0-20181218015638-a93a0a55a249 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.0 // indirect
