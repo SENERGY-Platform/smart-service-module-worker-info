@@ -3,7 +3,7 @@ module github.com/SENERGY-Platform/smart-service-module-worker-info
 go 1.19
 
 require (
-	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20230109073423-61e3c437e8e6
+	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20230109103356-5ba73dac9d65
 	github.com/julienschmidt/httprouter v1.3.0
 )
 
@@ -15,9 +15,7 @@ require (
 	github.com/SENERGY-Platform/models/go v0.0.0-20221223081229-be7eb5ebb37f // indirect
 	github.com/acobaugh/osrelease v0.0.0-20181218015638-a93a0a55a249 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/containerd/continuity v0.0.0-20190827140505-75bee3e2ccb6 // indirect
-	github.com/coocood/freecache v1.2.1 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/docker/cli v20.10.7+incompatible // indirect
 	github.com/docker/docker v20.10.7+incompatible // indirect
@@ -39,6 +37,7 @@ require (
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v1.0.0-rc9 // indirect
 	github.com/ory/dockertest/v3 v3.7.0 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/samuel/go-zookeeper v0.0.0-20180130194729-c4fab1ac1bec // indirect
