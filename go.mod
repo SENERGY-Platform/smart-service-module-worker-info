@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.0
 
 require (
-	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20230830092024-5801d263b4a5
+	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20230901100545-2cefca17f038
 	github.com/julienschmidt/httprouter v1.3.0
 )
 
@@ -13,7 +13,7 @@ require (
 	dario.cat/mergo v1.0.0 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
-	github.com/SENERGY-Platform/device-repository v0.0.0-20230809092745-feea50b09e00 // indirect
+	github.com/SENERGY-Platform/device-repository v0.0.0-20230831060305-371ed940ca60 // indirect
 	github.com/SENERGY-Platform/models/go v0.0.0-20230824080159-16585960df38 // indirect
 	github.com/SENERGY-Platform/permission-search v0.0.0-20230829121111-76c8c176bddb // indirect
 	github.com/acobaugh/osrelease v0.1.0 // indirect
