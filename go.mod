@@ -5,7 +5,7 @@ go 1.23
 toolchain go1.23.3
 
 require (
-	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20241217111518-1ee731d87aa0
+	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20250107091744-b8a76a4518d2
 	github.com/julienschmidt/httprouter v1.3.0
 )
 
@@ -16,7 +16,7 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/SENERGY-Platform/developer-notifications v0.0.4 // indirect
-	github.com/SENERGY-Platform/device-repository v0.1.51 // indirect
+	github.com/SENERGY-Platform/device-repository v0.1.52 // indirect
 	github.com/SENERGY-Platform/models/go v0.0.0-20241007061544-de7132ae94e4 // indirect
 	github.com/SENERGY-Platform/permissions-v2 v0.0.27 // indirect
 	github.com/SENERGY-Platform/service-commons v0.0.0-20240813072046-91b3195dd8fc // indirect
