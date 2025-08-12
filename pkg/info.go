@@ -20,17 +20,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/configuration"
-	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/model"
-	"log"
 	"sort"
 	"strings"
+
+	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/configuration"
+	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/model"
 )
 
 type Config struct {
 	WorkerParamPrefix                string `json:"worker_param_prefix"`
 	EnableAdditionalModuleDataFields bool   `json:"enable_additional_module_data_fields"`
-	Debug                            bool   `json:"debug"`
 }
 
 func New(config Config, libConfig configuration.Config, repo SmartServiceRepo) *Info {
@@ -93,10 +92,7 @@ func (this *Info) updateModule(task model.CamundaExternalTask, existingModule mo
 func (this *Info) Undo(modules []model.Module, reason error) {}
 
 func (this *Info) getSmartServiceModuleInit(task model.CamundaExternalTask) (result model.SmartServiceModuleInit, err error) {
-	if this.config.Debug {
-		temp, _ := json.Marshal(task.Variables)
-		log.Println("received task variables", string(temp))
-	}
+	this.libConfig.GetLogger().Debug("received task variables", "variables", fmt.Sprintf("%#v", task.Variables))
 	moduleData, err := this.getModuleData(task)
 	if this.config.EnableAdditionalModuleDataFields {
 		for key, value := range this.getModuleDataAdditionalFields(task) {
@@ -132,9 +128,7 @@ func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[stri
 		if strings.HasPrefix(key, this.config.WorkerParamPrefix+"module_data") {
 			temp, ok := variable.Value.(string)
 			if !ok {
-				if this.config.Debug {
-					log.Println("module_data is not string")
-				}
+				this.libConfig.GetLogger().Debug("module_data is not string", "key", key, "value", variable.Value)
 				return map[string]interface{}{}, errors.New("module_data is not string")
 			}
 			parts = append(parts, KeyValue{
@@ -144,9 +138,7 @@ func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[stri
 		}
 	}
 	if len(parts) == 0 {
-		if this.config.Debug {
-			log.Println("no module_data found")
-		}
+		this.libConfig.GetLogger().Debug("no module_data found")
 		return map[string]interface{}{}, nil
 	}
 	sort.Slice(parts, func(i, j int) bool {
@@ -158,7 +150,7 @@ func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[stri
 	}
 	err = json.Unmarshal([]byte(joined), &result)
 	if err != nil {
-		log.Println("ERROR: module_data is not valid json", err, "\n", joined)
+		this.libConfig.GetLogger().Error("module_data is not valid json", "error", err, "joined", joined)
 		return map[string]interface{}{}, fmt.Errorf("invalid json for module_data: %w, (%v)", err, joined)
 	}
 	return result, nil
@@ -205,17 +197,15 @@ func (this *Info) getExistingModule(processInstanceId string, key string) (modul
 		KeyFilter: &key,
 	})
 	if err != nil {
-		log.Println("ERROR:", err)
+		this.libConfig.GetLogger().Error("error while getting existing modules", "error", err)
 		return module, false, err
 	}
-	if this.config.Debug {
-		log.Printf("DEBUG: existing module request: %v, %v, \n %#v", processInstanceId, key, existingModules)
-	}
+	this.libConfig.GetLogger().Debug("existing module request", "processInstanceId", processInstanceId, "key", key, "existingModules", existingModules)
 	if len(existingModules) == 0 {
 		return module, false, nil
 	}
 	if len(existingModules) > 1 {
-		log.Printf("WARNING: more than one existing module found: %v, %v, \n %#v", processInstanceId, key, existingModules)
+		this.libConfig.GetLogger().Warn("more than one existing module found", "processInstanceId", processInstanceId, "key", key, "existingModules", existingModules)
 	}
 	module.SmartServiceModuleInit = existingModules[0].SmartServiceModuleInit
 	module.ProcesInstanceId = processInstanceId
