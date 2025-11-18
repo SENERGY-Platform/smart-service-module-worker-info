@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.6
 
 require (
-	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20250826124800-822d514cda3d
+	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20251118075759-40c0749a7f92
 	github.com/julienschmidt/httprouter v1.3.0
 )
 
@@ -16,7 +16,7 @@ require (
 	github.com/SENERGY-Platform/go-service-base/struct-logger v0.4.1 // indirect
 	github.com/SENERGY-Platform/models/go v0.0.0-20241007061544-de7132ae94e4 // indirect
 	github.com/SENERGY-Platform/permissions-v2 v0.0.38 // indirect
-	github.com/SENERGY-Platform/service-commons v0.0.0-20250707072258-a5b49118c926 // indirect
+	github.com/SENERGY-Platform/service-commons v0.0.0-20250903071414-1b34f1965afa // indirect
 	github.com/dlclark/regexp2 v1.11.0 // indirect
 	github.com/dop251/goja v0.0.0-20240627195025-eb1f15ee67d2 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
