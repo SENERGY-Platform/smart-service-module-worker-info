@@ -18,5 +18,7 @@
     "token_cache_default_expiration_in_seconds": 60,
     "token_cache_size_in_mb": 20,
 
-    "log_level": "info"
+    "log_level": "info",
+
+    "fetch_retries": 5
 }
