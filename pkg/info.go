@@ -17,6 +17,7 @@
 package pkg
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -43,30 +44,30 @@ type Info struct {
 }
 
 type SmartServiceRepo interface {
-	GetInstanceUser(instanceId string) (userId string, err error)
-	UseModuleDeleteInfo(info model.ModuleDeleteInfo) error
-	ListExistingModules(processInstanceId string, query model.ModulQuery) (result []model.SmartServiceModule, err error)
+	GetInstanceUser(ctx context.Context, instanceId string) (userId string, err error)
+	UseModuleDeleteInfo(ctx context.Context, info model.ModuleDeleteInfo) error
+	ListExistingModules(ctx context.Context, processInstanceId string, query model.ModulQuery) (result []model.SmartServiceModule, err error)
 }
 
-func (this *Info) Do(task model.CamundaExternalTask) (modules []model.Module, outputs map[string]interface{}, err error) {
+func (this *Info) Do(ctx context.Context, task model.CamundaExternalTask) (modules []model.Module, outputs map[string]interface{}, err error) {
 	key := this.getModuleKey(task)
 	if key == nil {
-		return this.createModule(task, []string{})
+		return this.createModule(ctx, task, []string{})
 	} else {
-		existingModule, exists, err := this.getExistingModule(task.ProcessInstanceId, *key)
+		existingModule, exists, err := this.getExistingModule(ctx, task.ProcessInstanceId, *key)
 		if err != nil {
 			return nil, nil, err
 		}
 		if !exists {
-			return this.createModule(task, []string{*key})
+			return this.createModule(ctx, task, []string{*key})
 		} else {
-			return this.updateModule(task, existingModule, []string{*key})
+			return this.updateModule(ctx, task, existingModule, []string{*key})
 		}
 	}
 }
 
-func (this *Info) createModule(task model.CamundaExternalTask, keys []string) ([]model.Module, map[string]interface{}, error) {
-	info, err := this.getSmartServiceModuleInit(task)
+func (this *Info) createModule(ctx context.Context, task model.CamundaExternalTask, keys []string) ([]model.Module, map[string]interface{}, error) {
+	info, err := this.getSmartServiceModuleInit(ctx, task)
 	info.Keys = keys
 	return []model.Module{{
 			Id:                     task.ProcessInstanceId + "." + task.Id,
@@ -77,8 +78,8 @@ func (this *Info) createModule(task model.CamundaExternalTask, keys []string) ([
 		err
 }
 
-func (this *Info) updateModule(task model.CamundaExternalTask, existingModule model.Module, keys []string) ([]model.Module, map[string]interface{}, error) {
-	info, err := this.getSmartServiceModuleInit(task)
+func (this *Info) updateModule(ctx context.Context, task model.CamundaExternalTask, existingModule model.Module, keys []string) ([]model.Module, map[string]interface{}, error) {
+	info, err := this.getSmartServiceModuleInit(ctx, task)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -89,11 +90,11 @@ func (this *Info) updateModule(task model.CamundaExternalTask, existingModule mo
 		nil
 }
 
-func (this *Info) Undo(modules []model.Module, reason error) {}
+func (this *Info) Undo(ctx context.Context, modules []model.Module, reason error) {}
 
-func (this *Info) getSmartServiceModuleInit(task model.CamundaExternalTask) (result model.SmartServiceModuleInit, err error) {
-	this.libConfig.GetLogger().Debug("received task variables", "variables", fmt.Sprintf("%#v", task.Variables))
-	moduleData, err := this.getModuleData(task)
+func (this *Info) getSmartServiceModuleInit(ctx context.Context, task model.CamundaExternalTask) (result model.SmartServiceModuleInit, err error) {
+	this.libConfig.GetLogger().DebugContext(ctx, "received task variables", "variables", fmt.Sprintf("%#v", task.Variables))
+	moduleData, err := this.getModuleData(ctx, task)
 	if this.config.EnableAdditionalModuleDataFields {
 		for key, value := range this.getModuleDataAdditionalFields(task) {
 			moduleData[key] = value
@@ -122,13 +123,13 @@ type KeyValue struct {
 	Value string
 }
 
-func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[string]interface{}, err error) {
+func (this *Info) getModuleData(ctx context.Context, task model.CamundaExternalTask) (result map[string]interface{}, err error) {
 	parts := []KeyValue{}
 	for key, variable := range task.Variables {
 		if strings.HasPrefix(key, this.config.WorkerParamPrefix+"module_data") {
 			temp, ok := variable.Value.(string)
 			if !ok {
-				this.libConfig.GetLogger().Debug("module_data is not string", "key", key, "value", variable.Value)
+				this.libConfig.GetLogger().DebugContext(ctx, "module_data is not string", "key", key, "value", variable.Value)
 				return map[string]interface{}{}, errors.New("module_data is not string")
 			}
 			parts = append(parts, KeyValue{
@@ -138,7 +139,7 @@ func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[stri
 		}
 	}
 	if len(parts) == 0 {
-		this.libConfig.GetLogger().Debug("no module_data found")
+		this.libConfig.GetLogger().DebugContext(ctx, "no module_data found")
 		return map[string]interface{}{}, nil
 	}
 	sort.Slice(parts, func(i, j int) bool {
@@ -150,7 +151,7 @@ func (this *Info) getModuleData(task model.CamundaExternalTask) (result map[stri
 	}
 	err = json.Unmarshal([]byte(joined), &result)
 	if err != nil {
-		this.libConfig.GetLogger().Error("module_data is not valid json", "error", err, "joined", joined)
+		this.libConfig.GetLogger().ErrorContext(ctx, "module_data is not valid json", "error", err, "joined", joined)
 		return map[string]interface{}{}, fmt.Errorf("invalid json for module_data: %w, (%v)", err, joined)
 	}
 	return result, nil
@@ -192,20 +193,20 @@ func (this *Info) getModuleKey(task model.CamundaExternalTask) (key *string) {
 	return nil
 }
 
-func (this *Info) getExistingModule(processInstanceId string, key string) (module model.Module, exists bool, err error) {
-	existingModules, err := this.smartServiceRepo.ListExistingModules(processInstanceId, model.ModulQuery{
+func (this *Info) getExistingModule(ctx context.Context, processInstanceId string, key string) (module model.Module, exists bool, err error) {
+	existingModules, err := this.smartServiceRepo.ListExistingModules(ctx, processInstanceId, model.ModulQuery{
 		KeyFilter: &key,
 	})
 	if err != nil {
-		this.libConfig.GetLogger().Error("error while getting existing modules", "error", err)
+		this.libConfig.GetLogger().ErrorContext(ctx, "error while getting existing modules", "error", err)
 		return module, false, err
 	}
-	this.libConfig.GetLogger().Debug("existing module request", "processInstanceId", processInstanceId, "key", key, "existingModules", existingModules)
+	this.libConfig.GetLogger().DebugContext(ctx, "existing module request", "processInstanceId", processInstanceId, "key", key, "existingModules", existingModules)
 	if len(existingModules) == 0 {
 		return module, false, nil
 	}
 	if len(existingModules) > 1 {
-		this.libConfig.GetLogger().Warn("more than one existing module found", "processInstanceId", processInstanceId, "key", key, "existingModules", existingModules)
+		this.libConfig.GetLogger().WarnContext(ctx, "more than one existing module found", "processInstanceId", processInstanceId, "key", key, "existingModules", existingModules)
 	}
 	module.SmartServiceModuleInit = existingModules[0].SmartServiceModuleInit
 	module.ProcesInstanceId = processInstanceId

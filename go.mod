@@ -3,7 +3,7 @@ module github.com/SENERGY-Platform/smart-service-module-worker-info
 go 1.26
 
 require (
-	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20260827065540-cdfae7f76927
+	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20260901044136-21c33469053e
 	github.com/julienschmidt/httprouter v1.3.0
 )
 

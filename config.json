@@ -19,6 +19,7 @@
     "token_cache_size_in_mb": 20,
 
     "log_level": "info",
+  "otel_endpoint": "",
 
     "fetch_retries": 5
 }

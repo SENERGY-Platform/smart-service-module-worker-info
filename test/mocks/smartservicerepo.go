@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"github.com/SENERGY-Platform/smart-service-module-worker-info/pkg"
 	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/configuration"
+	"github.com/SENERGY-Platform/smart-service-module-worker-lib/pkg/model"
 	"github.com/julienschmidt/httprouter"
 	"io"
 	"net/http"
@@ -77,6 +78,19 @@ func (this *SmartServiceRepoMock) Start(ctx context.Context, wg *sync.WaitGroup)
 
 func (this *SmartServiceRepoMock) getRouter() http.Handler {
 	router := httprouter.New()
+
+	router.GET("/instances-by-process-id/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		temp, _ := io.ReadAll(request.Body)
+		this.logRequest(Request{
+			Method:   request.Method,
+			Endpoint: request.URL.Path,
+			Message:  string(temp),
+		})
+		json.NewEncoder(writer).Encode(model.SmartServiceInstance{
+			Id:     params.ByName("id"),
+			UserId: userId,
+		})
+	})
 
 	router.PUT("/instances-by-process-id/:id/error", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		temp, _ := io.ReadAll(request.Body)
