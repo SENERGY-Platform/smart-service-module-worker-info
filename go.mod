@@ -3,20 +3,20 @@ module github.com/SENERGY-Platform/smart-service-module-worker-info
 go 1.26
 
 require (
-	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20260901044136-21c33469053e
+	github.com/SENERGY-Platform/device-repository/v2 v2.2.2
+	github.com/SENERGY-Platform/models/go v0.0.0-20260911075423-f01521c01da2
+	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20260928072743-d2c820b76945
 	github.com/julienschmidt/httprouter v1.3.0
 )
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/SENERGY-Platform/developer-notifications v0.0.6 // indirect
-	github.com/SENERGY-Platform/device-repository v0.3.5 // indirect
 	github.com/SENERGY-Platform/gin-middleware v0.14.1 // indirect
 	github.com/SENERGY-Platform/go-service-base/struct-logger v0.8.0 // indirect
 	github.com/SENERGY-Platform/mgw-cloud-proxy/cert-manager/lib v0.0.4 // indirect
-	github.com/SENERGY-Platform/models/go v0.0.0-20260710115411-5b8e00d6e038 // indirect
-	github.com/SENERGY-Platform/permissions-v2 v0.0.47 // indirect
-	github.com/SENERGY-Platform/service-commons v0.0.0-20260821114734-3e4578ac2358 // indirect
+	github.com/SENERGY-Platform/permissions-v2 v1.0.0 // indirect
+	github.com/SENERGY-Platform/service-commons v0.0.0-20260915085610-4949c31a01ef // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.1 // indirect
 	github.com/bytedance/sonic/loader v0.5.1 // indirect
