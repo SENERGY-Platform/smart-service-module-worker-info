@@ -5,7 +5,7 @@ go 1.26
 require (
 	github.com/SENERGY-Platform/device-repository/v2 v2.2.2
 	github.com/SENERGY-Platform/models/go v0.0.0-20260911075423-f01521c01da2
-	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20260928072743-d2c820b76945
+	github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20261006080333-b6af9a5986cb
 	github.com/julienschmidt/httprouter v1.3.0
 )
 

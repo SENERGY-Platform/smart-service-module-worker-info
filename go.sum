@@ -22,8 +22,8 @@ github.com/SENERGY-Platform/permissions-v2 v1.0.0 h1:poeecCpXYD8GOADLyihiMbgMCr6
 github.com/SENERGY-Platform/permissions-v2 v1.0.0/go.mod h1:O0DTzApbQnXzDmyQ3KzievzjRF44xQ7n6qdbfQ36Qw8=
 github.com/SENERGY-Platform/service-commons v0.0.0-20260915085610-4949c31a01ef h1:LazqUA3nKDG7DA6Un0yD1jfJsudxLVq7J0a2TNDNdHY=
 github.com/SENERGY-Platform/service-commons v0.0.0-20260915085610-4949c31a01ef/go.mod h1:k1Jia3JItpaM26/SY1ZGyoGhBE8EA5zQrkwSaiFZKGQ=
-github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20260928072743-d2c820b76945 h1:yb9tFSUryZPe/p2tw7EMxGQ3GFEctR6vB1P51R1z/OQ=
-github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20260928072743-d2c820b76945/go.mod h1:xltM5aiHsMPNK1duHr5f+Eohi1A0xtTIwN+8/k0FhEE=
+github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20261006080333-b6af9a5986cb h1:x6WXxONM28k31CER9IqGC+eRF+l+Hylh0wChe0+Q0Z0=
+github.com/SENERGY-Platform/smart-service-module-worker-lib v0.0.0-20261006080333-b6af9a5986cb/go.mod h1:xltM5aiHsMPNK1duHr5f+Eohi1A0xtTIwN+8/k0FhEE=
 github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874 h1:N7oVaKyGp8bttX0bfZGmcGkjz7DLQXhAn3DNd3T0ous=
 github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874/go.mod h1:r5xuitiExdLAJ09PR7vBVENGvp4ZuTBeWTGtxuX3K+c=
 github.com/bytedance/gopkg v0.1.4 h1:oZnQwnX82KAIWb7033bEwtxvTqXcYMxDBaQxo5JJHWM=
